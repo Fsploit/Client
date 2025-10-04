@@ -209,75 +209,87 @@ function Library:new()
 		end
 	end
 
-	function TabFunctions:create_tab()
-		local tab = game:GetObjects('rbxassetid://17084806493')[1]
-		tab.Parent = tabs
-		tab.Title.Text = self
+function TabFunctions:create_tab(name)
+    local tab = game:GetObjects('rbxassetid://17084806493')[1]
+    if not tab then
+        error("Failed to load tab asset: rbxassetid://17084806493")
+    end
+    tab.Parent = tabs
+    tab.Title.Text = tostring(name) -- Use 'name' as a string
 
-		local page_1 = game:GetObjects('rbxassetid://17084082350')[1]
-		local page_2 = game:GetObjects('rbxassetid://17084088521')[1]
+    local page_1 = game:GetObjects('rbxassetid://17084082350')[1]
+    local page_2 = game:GetObjects('rbxassetid://17084088521')[1]
+    if not page_1 or not page_2 then
+        error("Failed to load page assets")
+    end
 
-		if container:FindFirstChild('Page_2') then
-			page_1.Visible = false
-			page_2.Visible = false
-		else
-			TabFunctions.update_tabs({
-				tab = tab,
-				page_1 = page_1,
-				page_2 = page_2
-			})
-		end
+    if container:FindFirstChild('Page_2') then
+        page_1.Visible = false
+        page_2.Visible = false
+    else
+        TabFunctions.update_tabs({
+            tab = tab,
+            page_1 = page_1,
+            page_2 = page_2
+        })
+    end
 
-		page_1.Parent = container
-		page_2.Parent = container
+    page_1.Parent = container
+    page_2.Parent = container
 
-		tab.MouseButton1Click:Connect(function()
-			TabFunctions.update_tabs({
-				tab = tab,
-				page_1 = page_1,
-				page_2 = page_2
-			})
-		end)
+    tab.MouseButton1Click:Connect(function()
+        TabFunctions.update_tabs({
+            tab = tab,
+            page_1 = page_1,
+            page_2 = page_2
+        })
+    end)
 
-		local Functions = {}
+    local Functions = {}
 
-		function Functions:create_title()
-			local title = game:GetObjects('rbxassetid://17084099039')[1]
-			title.Parent = self.page == 'left' and page_1 or page_2
-			title.Text = self.text
-		end
+    function Functions:create_title()
+        local title = game:GetObjects('rbxassetid://17084099039')[1]
+        if not title then
+            error("Failed to load title asset")
+        end
+        title.Parent = self.page == 'left' and page_1 or page_2
+        title.Text = self.text
+    end
 
-		function Functions:create_toggle()
-			local toggle = game:GetObjects('rbxassetid://17084571638')[1]
-			toggle.Parent = self.page == 'left' and page_1 or page_2
-			toggle.Title.Text = self.text
+    function Functions:create_toggle()
+        local toggle = game:GetObjects('rbxassetid://17084571638')[1]
+        if not toggle then
+            error("Failed to load toggle asset")
+        end
+        toggle.Parent = self.page == 'left' and page_1 or page_2
+        toggle.Title.Text = self.text
 
-			Library.update_toggle({
-				toggle = toggle,
-				state = self.state
-			})
+        Library.update_toggle({
+            toggle = toggle,
+            state = self.state
+        })
 
-			self.callback(self.state)
-			Library.flags[self.flag] = self.state
+        self.callback(self.state)
+        Library.flags[self.flag] = self.state
 
-			toggle.MouseButton1Click:Connect(function()
-				self.state = not self.state
-				Library.flags[self.flag] = self.state
+        toggle.MouseButton1Click:Connect(function()
+            self.state = not self.state
+            Library.flags[self.flag] = self.state
 
-				Library.update_toggle({
-					toggle = toggle,
-					state = self.state
-				})
+            Library.update_toggle({
+                toggle = toggle,
+                state = self.state
+            })
 
-				self.callback(self.state)
-			end)
-		end
+            self.callback(self.state)
+        end)
+    end
 
-		return Functions
-	end
+    return Functions
+end
 
 	return TabFunctions
 end
 
 
-return Library
+return Library							
